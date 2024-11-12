@@ -1,8 +1,9 @@
 import pandas 
 import csv
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import r2_score
 
-fileName = 'BIGDATA.csv'
 
 def read_data(fileName):
     '''
@@ -47,15 +48,18 @@ def xy_graph(data):
     XY graph
     '''
 
-    plt.plot(data[0],data[1])
+    plt.plot(data[0],data[1],marker = '.',label = 'Measured Points')
+    
+    r_2 = r_squred(data)
 
     plt.title('Standard Graph')
     plt.xlabel('Current (mA)')
     plt.ylabel('Counts Per Seconds')
     plt.grid(True)
 
+    plt.legend()
     plt.show()
-
+    plt.annotate('r^2 = {}'.format(r_2),xy = (min(data[0]),0.9*max(data[1])))
 
 
 
@@ -70,21 +74,50 @@ def log_graph(data):
     Graph with both axes logged to base 10
     '''
 
-    plt.plot(data[0],data[1])
+    data[0] = np.log10(data[0])
+    data[1] = np.log10(data[1])
 
+    plt.plot(data[0],data[1], '.',label = 'Measured Points')
 
+    linear_fit(data)
+    r_2 = r_squred(data)
+    print(r_2)
+    
     plt.title('Logarithmic Graph')
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Seconds')
-    plt.xscale('log')
-    plt.yscale('log')
     plt.grid(True)
-    
+    plt.annotate('r^2 = {}'.format(r_2),xy = (min(data[0]),0.9*max(data[1])))
+    plt.legend()
     plt.show()
    
+def double_data_plot(data1,data2):
+    plt.plot(data1[0],data1[1],label = 'Ratio of sample and reference')
+    plt.plot(data2[0],data2[1],label = 'Ratio of references')
+    plt.title('Standard Graph')
+    plt.xlabel('Current (mA)')
+    plt.ylabel('Ratio of Counts Per Seconds')
+    plt.grid(True)
+    plt.legend()
+
+    plt.show()
+
+def r_squred(data):
+    data[0] = np.array(data[0])
+    coef,intercept = np.polyfit(data[0],data[1],1)
+    predicted = coef*data[0]+intercept
+    r_squared = r2_score(data[1], predicted)
+
+    return r_squared
+
+def linear_fit(data):
+    coef = np.polyfit(data[0],data[1],1)
+    poly1d_fn = np.poly1d(coef) 
+
+    plt.plot(data[0], poly1d_fn(data[0]),label = 'Linear fit')
 
 
 
-data = read_data(fileName)
-log_graph(data)
-xy_graph(data)
+file = 'B1S11.csv'
+data1 = read_data(file)
+xy_graph(data1)
