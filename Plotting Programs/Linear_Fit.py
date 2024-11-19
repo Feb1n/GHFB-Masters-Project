@@ -58,20 +58,23 @@ def xy_graph(data):
 def log_graph(data):
     '''
     Plots given data as a basic xy graph, while taking the log of the axes.
-    Includes error bars based on shot noise using the SNR formula.
+    Includes error bars based on standard deviation of both regions across repeat measurement.
     
+    Parameters:
+    
+
     Returns:
     Logarithmic graph with error bars
     '''
 
-    # Extract current and ratio from the data
-    current = np.array(data[0])
-    ratio = np.array(data[1])
-    inttime = np.array(data[2])
-    signal = np.array(data[3])
-    ref = np.array(data[4])
-    signaldev = np.array(data[5])
-    refdev = np.array(data[6])
+    # Extract parameters from the data
+    current = np.array(data[0]) # current values
+    ratio = np.array(data[1])   #ratio of signal/reference intensity
+    inttime = np.array(data[2]) #variable integration time
+    signal = np.array(data[3]) #signal intensity raw data
+    ref = np.array(data[4])    #reference intensity raw data
+    signaldev = np.array(data[5]) #std dev of repeat measurements for signal raw data
+    refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
 
    # Propagate errors in regions to ratio
     ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
@@ -107,7 +110,7 @@ def log_graph(data):
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Second')
     plt.grid(True)
-    plt.annotate(f'r^2 = {r_2:.3f}', xy=(min(data[0]), 0.9 * max(data[1])))
+    plt.annotate(f'R^2 = {r_2:.3f}', xy=(min(data[0]), 0.9 * max(data[1])))
     plt.legend()
     plt.show()
 
