@@ -16,8 +16,19 @@ def read_data(fileName):
 
     Returns
     ----------
-    data - 2D list in the form [all currents in mA, all counts per second]
+    data - 2D list of all data exported from the experimental set up.
+    
+    The structure of data is outlined below:
+
+    data[0] = Current (mA)
+    data[1] = Ratios of the average counts per second (1/s)
+    data[2] = Exposure time (ms)
+    data[3] = Average Intensity in Fluorescent Area
+    data[4] = Average Intensity in Reference Area
+    data[5] = Standard deviation in Fluorescent Area
+    data[6] = Standard deviation in Reference Area
     '''
+
     path = 'Data/' + fileName
 
     file = open(path, 'r')
@@ -95,6 +106,8 @@ def r_squared(data, predicted):
     data[0] = np.array(data[0])
 
     coef, intercept = np.polyfit(data[0], data[1], 1)
+
+    # Define the model
     predicted = coef * data[0] + intercept
 
     r_squared = r2_score(data[1], predicted)
@@ -160,7 +173,7 @@ def exp_decay_fit(data):
         print("Try adjusting the initial guesses, increasing maxfev, or normalizing your data.")
 
 # Main execution
-file = 'B2S61.csv'
+file = 'B2S6.csv'
 data1 = read_data(file)
 xy_graph(data1)
 
