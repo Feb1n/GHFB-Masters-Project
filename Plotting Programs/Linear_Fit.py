@@ -46,6 +46,8 @@ def xy_graph(data):
     # Call the exponential fitting function
     exp_decay_fit(data)
 
+
+
     plt.title('Standard Graph with Exponential Fit')
     plt.xlabel('Current (mA)')
     plt.ylabel('Counts Per Second')
@@ -150,11 +152,15 @@ def exp_decay_fit(data):
     Parameters:
     2D list in the form [x, y]
     '''
+
+
     # Define the model
     def model(x, a, b, t):
         return a + b * np.exp(-x / t)
 
-    # Normalize data to avoid scaling issues
+
+
+    # Normalize data
     x_data = np.array(data[0])
     y_data = np.array(data[1])
     x_data_scaled = x_data / max(x_data)
@@ -172,12 +178,12 @@ def exp_decay_fit(data):
             y_data_scaled,
             p0=initial_guess,
             bounds=bounds,
-            maxfev=10000  # Increase maximum iterations
+            maxfev=10000
         )
         a_fit, b_fit, t_fit = popt
         print(f"Fitted parameters: a = {a_fit:.3f}, b = {b_fit:.3f}, t = {t_fit:.3f}")
 
-        # Rescale parameters to original data
+        # Rescaling parameters to original data
         a_fit_rescaled = a_fit * max(y_data)
         b_fit_rescaled = b_fit * max(y_data)
         t_fit_rescaled = t_fit * max(x_data)
@@ -194,14 +200,25 @@ def exp_decay_fit(data):
         x_fit = np.linspace(min(x_data), max(x_data), 500)
         y_fit = model(x_fit / max(x_data), a_fit, b_fit, t_fit) * max(y_data)
 
-        # Plot the fitted curve
+        ratio = np.array(data[1])   #ratio of signal/reference intensity
+        signal = np.array(data[3]) #signal intensity raw data
+        ref = np.array(data[4])    #reference intensity raw data
+        signaldev = np.array(data[5]) #std dev of repeat measurements for signal raw data
+        refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
+
+        # Propagate errors in regions to ratio
+        ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
+
+
+        # plt.errorbar(x_data, y_data, yerr=ratiodev,fmt='.', label='Measured Points', linestyle='None', color='blue')
+        # Plotting the fitted curve 
         plt.plot(x_fit, y_fit, label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.2f}, R^2={r_squared}', color='green')
     except RuntimeError as e:
         print(f"Curve fitting failed: {e}")
-        print("Try adjusting the initial guesses, increasing maxfev, or normalizing your data.")
+       
 
 # Main execution
 file = 'B2S6.csv'
 data1 = read_data(file)
-log_graph(data1)
+xy_graph(data1)
 
