@@ -35,7 +35,7 @@ for i in data: plt.errorbar(np.log10(i[0]),np.log10(i[1]),
                             capsize=3)
 
 plt.title('Log graph of the ratio of counts per second for samples in Batch 3')
-plt.xlabel('Log(Ratio/Second)')
-plt.ylabel('Log(Current)')
+plt.ylabel('Log(Ratio/Second)')
+plt.xlabel('Log(Current)')
 plt.legend()
 plt.show()
