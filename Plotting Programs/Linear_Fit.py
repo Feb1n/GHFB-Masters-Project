@@ -1,4 +1,3 @@
-import pandas
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,27 +32,36 @@ def read_data(fileName):
 
 def xy_graph(data):
     '''
-    Plots given data as a basic xy graph, without taking the log of the axes.
+    Plots given data as a basic xy graph and plots an exponential fit onto the data.
 
     Parameters:
     2D list in the form [x,y]
 
     Returns:
-    XY graph
+    XY graph with an exponential fit.
     '''
-    plt.scatter(data[0], data[1], marker='.', label='Measured Points')
+    current = np.array(data[0])
+    exp_time = np.array(data[2])
+    ratio = np.array(data[1])   #ratio of signal/reference intensity
+    signal = np.array(data[3]) #signal intensity raw data
+    ref = np.array(data[4])    #reference intensity raw data
+    signaldev = np.array(data[5]) #std dev of repeat measurements for signal raw data
+    refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
 
+    # Propagate errors in regions to ratio
+    ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref) **2)
+
+
+    plt.errorbar(current, ratio,fmt='.', label='Measured Points', linestyle='None',color = 'blue')
+    # plt.errorbar(current, ratio, yerr=ratiodev,fmt='.', label='Measured Points', linestyle='None',color = 'blue')
     # Call the exponential fitting function
     exp_decay_fit(data)
 
-
-
-    plt.title('Standard Graph with Exponential Fit')
+    plt.title('Graph of the Ratios of Average Intenseties per Second ')
     plt.xlabel('Current (mA)')
-    plt.ylabel('Counts Per Second')
+    plt.ylabel('Ratio of Counts Per Second')
     plt.grid(True)
     plt.legend()
-    plt.show()
 
 
 def log_graph(data):
@@ -113,7 +121,7 @@ def log_graph(data):
     plt.grid(True)
     plt.annotate(f'R^2 = {r_2:.3f}', xy=(min(data[0]), 0.9 * max(data[1])))
     plt.legend()
-    plt.show()
+
 
 
 def linear_fit(data):
@@ -122,9 +130,10 @@ def linear_fit(data):
 
     plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit')
 
+
 def r_squared(data):
     '''
-    Calculates the R² score for a linear fit to the data.
+    Calculates the R^2 score for a linear fit to the data.
 
     Parameters
     ----------
@@ -134,7 +143,7 @@ def r_squared(data):
     Returns
     -------
     r_squared : float
-        The R² score of the fit.
+        The R^2 score of the fit.
     '''
     x = np.array(data[0])
     y = np.array(data[1])
@@ -144,13 +153,15 @@ def r_squared(data):
 
     return r_squared
 
+
 def exp_decay_fit(data):
     '''
     Fits the data to the model y = a + b * exp(-x/t), plots the fitted curve, 
-    and calculates the R^2 value using sklearn's r2_score.
+    and calculates the R^2 value.
 
     Parameters:
     2D list in the form [x, y]
+
     '''
 
 
@@ -200,25 +211,15 @@ def exp_decay_fit(data):
         x_fit = np.linspace(min(x_data), max(x_data), 500)
         y_fit = model(x_fit / max(x_data), a_fit, b_fit, t_fit) * max(y_data)
 
-        ratio = np.array(data[1])   #ratio of signal/reference intensity
-        signal = np.array(data[3]) #signal intensity raw data
-        ref = np.array(data[4])    #reference intensity raw data
-        signaldev = np.array(data[5]) #std dev of repeat measurements for signal raw data
-        refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
-
-        # Propagate errors in regions to ratio
-        ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
-
-
-        # plt.errorbar(x_data, y_data, yerr=ratiodev,fmt='.', label='Measured Points', linestyle='None', color='blue')
         # Plotting the fitted curve 
-        plt.plot(x_fit, y_fit, label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.2f}, R^2={r_squared}', color='green')
+        plt.errorbar(x_fit, y_fit,label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.2f}, R^2={r_squared}', color='green')
     except RuntimeError as e:
         print(f"Curve fitting failed: {e}")
        
 
-# Main execution
-file = 'B2S6.csv'
-data1 = read_data(file)
-xy_graph(data1)
 
+# Main execution
+# file = 'B3S1.csv'
+# data1 = read_data(file)
+# xy_graph(data1)
+# plt.show()
