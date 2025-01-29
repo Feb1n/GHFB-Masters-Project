@@ -164,7 +164,6 @@ def exp_decay_fit(data):
 
     '''
 
-
     # Define the model
     def model(x, a, b, t):
         return a + b * np.exp(-x / t)
@@ -192,8 +191,7 @@ def exp_decay_fit(data):
             maxfev=10000
         )
         a_fit, b_fit, t_fit = popt
-        print(f"Fitted parameters: a = {a_fit:.3f}, b = {b_fit:.3f}, t = {t_fit:.3f}")
-
+        
         # Rescaling parameters to original data
         a_fit_rescaled = a_fit * max(y_data)
         b_fit_rescaled = b_fit * max(y_data)
@@ -212,14 +210,26 @@ def exp_decay_fit(data):
         y_fit = model(x_fit / max(x_data), a_fit, b_fit, t_fit) * max(y_data)
 
         # Plotting the fitted curve 
-        plt.errorbar(x_fit, y_fit,label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.2f}, R^2={r_squared}', color='green')
+        plt.errorbar(x_fit, y_fit,label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.5f}, R^2={r_squared}', color='green')
     except RuntimeError as e:
         print(f"Curve fitting failed: {e}")
        
 
 
 # Main execution
-# file = 'B3S1.csv'
-# data1 = read_data(file)
-# xy_graph(data1)
-# plt.show()
+# All files currently in the dataset
+files = ['B2S1','B2S2','B2S3','B2S4','B2S5','B2S6',
+         'B3S1','B3S2','B3S3','B3S4','B3S5','B3S6','B3S7','B3S8',
+         'B4S2','B4S5','B4S6','B4S2 620BP','B4S3 620BP','B4S4 620BP','B4S5 620BP']
+
+# loop to produce log and XY graphs for all datasets at once
+for file in files:
+    data = read_data(file+'.csv')
+    plt.figure(figsize=(10, 6))
+    log_graph(data)
+    plt.savefig(file+'_log.png')
+    plt.close()
+    plt.figure(figsize=(10, 6))
+    xy_graph(data) 
+    plt.savefig(file+'_XY.png')
+    plt.close()
