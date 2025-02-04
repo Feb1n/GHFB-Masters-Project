@@ -127,8 +127,9 @@ def log_graph(data):
 def linear_fit(data):
     coef = np.polyfit(data[0], data[1], 1)
     poly1d_fn = np.poly1d(coef)
+    slope,intercept = np.poly1d(coef)
 
-    plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit')
+    plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit, m = '+str(slope))
 
 
 def r_squared(data):
@@ -218,16 +219,18 @@ def exp_decay_fit(data):
 
 # Main execution
 # All files currently in the dataset
-files = ['B6S2 smaller']
+files = ['B2S1','B2S2','B2S3','B2S4','B2S5','B2S6',
+         'B3S1','B3S2','B3S3','B3S4','B3S5','B3S6','B3S7','B3S8',
+         'B4S2','B4S5','B4S6','B4S2 620BP','B4S3 620BP','B4S4 620BP','B4S5 620BP']
 
 # loop to produce log and XY graphs for all datasets at once
 for file in files:
     data = read_data(file+'.csv')
     plt.figure(figsize=(10, 6))
     log_graph(data)
-    plt.savefig(file+'_log.png')
+    plt.savefig('images/'+file+'_log.png')
     plt.close()
     plt.figure(figsize=(10, 6))
     xy_graph(data) 
-    plt.savefig(file+'_XY.png')
+    plt.savefig('images/'+file+'_XY.png')
     plt.close()
