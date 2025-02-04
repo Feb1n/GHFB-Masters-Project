@@ -218,9 +218,7 @@ def exp_decay_fit(data):
 
 # Main execution
 # All files currently in the dataset
-files = ['B2S1','B2S2','B2S3','B2S4','B2S5','B2S6',
-         'B3S1','B3S2','B3S3','B3S4','B3S5','B3S6','B3S7','B3S8',
-         'B4S2','B4S5','B4S6','B4S2 620BP','B4S3 620BP','B4S4 620BP','B4S5 620BP']
+files = ['B6S2 smaller']
 
 # loop to produce log and XY graphs for all datasets at once
 for file in files:
