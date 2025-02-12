@@ -30,7 +30,7 @@ def read_data(fileName):
     return data
 
 
-def xy_graph(data):
+def xy_graph(data,file):
     '''
     Plots given data as a basic xy graph and plots an exponential fit onto the data.
 
@@ -49,12 +49,11 @@ def xy_graph(data):
     refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
 
     # Propagate errors in regions to ratio
-    ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref) **2)
+    ratiodev = ratio*exp_time*1e-3*np.sqrt((signaldev / signal)**2 + (refdev / ref) **2)
 
 
-    plt.errorbar(current, ratio,fmt='.', label='Measured Points', linestyle='None',color = 'blue')
-    # plt.errorbar(current, ratio, yerr=ratiodev,fmt='.', label='Measured Points', linestyle='None',color = 'blue')
-    # Call the exponential fitting function
+    # plt.errorbar(current, ratio,fmt='.', label='Measured Points', linestyle='None',color = 'blue')
+    plt.errorbar(current, ratio, yerr=ratiodev,fmt='.', label='Measured Points', linestyle='None',color='black',ecolor='black',elinewidth=1,capsize=3)
     exp_decay_fit(data)
 
     plt.title('Graph of the Ratios of Average Intenseties per Second ')
@@ -74,16 +73,17 @@ def linear_fit(data):
 def lin_fit(x, m, c):
   return m*x + c
 
-def log_graph(data):
+def log_graph(data,file):
     '''
     Plots given data as a basic xy graph, while taking the log of the axes.
     Includes error bars based on standard deviation of both regions across repeat measurement.
     
     Parameters:
-    
+    1 dataset to be plotted in a 1D array.
+    Name of the sample
 
     Returns:
-    Logarithmic graph with error bars
+    Logarithmic plot with error bars and a linear fit.
     '''
 
     # Extract parameters from the data
@@ -117,8 +117,8 @@ def log_graph(data):
         capsize=3        # Size of the error bar caps
     )
 
-    # Linear fit (optional, for visualization)
-    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,  sigma = log_ratiodev, absolute_sigma=True)
+    # Linear fit function call
+    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,file,  sigma = log_ratiodev, absolute_sigma=True)
     
     # Calculate and display R-squared value
     r_2 = r_squared(data)
@@ -133,14 +133,38 @@ def log_graph(data):
     plt.title('Logarithmic Graph with Error Bars')
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Second')
+<<<<<<< HEAD
     
+=======
+    plt.grid(True)
+>>>>>>> aa73456907da4f9d77d15072efecbbf35b9ce657
     plt.legend()
 
 
+def linear_fit(data,file):
+    '''
+    Calculates a first degree polynomial fit for provided data.
+
+<<<<<<< HEAD
 
 
 
+=======
+    Parameters:
+    Data to be fitted
+    Name of the file
 
+    Returns:
+    A plot with a linear fit.
+    '''
+    coef = np.polyfit(data[0], data[1], 1)
+    poly1d_fn = np.poly1d(coef)
+    slope,intercept = np.poly1d(coef)
+
+
+
+    plt.plot(data[0], poly1d_fn(data[0]), label= file+' Linear Fit, m = '+str(round(slope,2)))
+>>>>>>> aa73456907da4f9d77d15072efecbbf35b9ce657
 
 
 def r_squared(data):
@@ -149,8 +173,7 @@ def r_squared(data):
 
     Parameters
     ----------
-    data : list of list
-        2D list in the form [x, y].
+    data
 
     Returns
     -------
@@ -244,16 +267,19 @@ def exp_decay_fit(data):
 
 # Main execution
 # All files currently in the dataset
+
 files = ['B6S2 smaller', 'B6S2 620 small']
 
-# loop to produce log and XY graphs for all datasets at once
+
+
+# loop to produce log and XY graphs for all datasets at once and save them into an images folder
 for file in files:
     data = read_data(file+'.csv')
     plt.figure(figsize=(10, 6))
-    log_graph(data)
-    plt.savefig('images/'+file+'_log.png')
+    xy_graph(data,file) 
+    plt.savefig('images/'+file+'_XY.png')
     plt.close()
     plt.figure(figsize=(10, 6))
-    xy_graph(data) 
-    plt.savefig('images/'+file+'_XY.png')
+    log_graph(data,file)
+    plt.savefig('images/'+file+'_log.png')
     plt.close()

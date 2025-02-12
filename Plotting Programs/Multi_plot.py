@@ -1,40 +1,19 @@
 from Linear_Fit import read_data
-from Linear_Fit import exp_decay_fit
+from Linear_Fit import log_graph
 import matplotlib.pyplot as plt
-import numpy as np
 
-files = ['B3S2','B3S4','B3S6','B3S8']
-filetype = '.csv'
+# Specify csv filenames to be plotted on one graph in the list below:
+files = ['B7S1','B7S2','B7S3','B7S4']
 
-data = []
+# Adjust sizing of figure
+plt.figure(figsize=(10, 6))
 
-def error_calc(dataset):
-    ratio = np.array(dataset[1])   #ratio of signal/reference intensity
-    signal = np.array(dataset[3]) #signal intensity raw data
-    ref = np.array(dataset[4])    #reference intensity raw data
-    signaldev = np.array(dataset[5]) #std dev of repeat measurements for signal raw data
-    refdev = np.array(dataset[6]) #std dev of repeat measurements for reference raw data
+for file in files:
+    data = read_data(file+'.csv')
+    log_graph(data,file)
 
-    # Propagate errors in regions to ratio
-    ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
-
-    log_ratiodev = ratiodev / (ratio * np.log(10))
-
-    return log_ratiodev
-
-
-for file in files: data.append(read_data(file+filetype))
-
-
-for i in data: plt.errorbar(np.log10(i[0]),np.log10(i[1]),
-                            yerr=error_calc(i),
-                            marker='o',
-                            label = files[data.index(i)],
-                            linestyle = 'none',
-                            elinewidth=1,   
-                            capsize=3)
-
-plt.title('Log graph of the ratio of counts per second for samples in Batch 3')
+# Adjust Titles and labels on figure
+plt.title('Log graph of the ratio of counts per second')
 plt.ylabel('Log(Ratio/Second)')
 plt.xlabel('Log(Current)')
 plt.legend()
