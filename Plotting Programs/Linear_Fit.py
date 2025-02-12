@@ -63,6 +63,16 @@ def xy_graph(data):
     plt.grid(True)
     plt.legend()
 
+def linear_fit(data):
+    coef = np.polyfit(data[0], data[1], 1)
+    poly1d_fn = np.poly1d(coef)
+    slope,intercept = np.poly1d(coef)
+
+    plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit, m = '+str(slope))
+
+#Defining linear fit
+def lin_fit(x, m, c):
+  return m*x + c
 
 def log_graph(data):
     '''
@@ -86,19 +96,19 @@ def log_graph(data):
     refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
 
    # Propagate errors in regions to ratio
-    ratiodev = ratio * np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
+    ratiodev = ratio*inttime*1e-3*np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
 
     # Propagate error
-    log_ratiodev = ratiodev / (ratio * np.log(10))
+    log_ratiodev = ratiodev /  (ratio*np.log(10))
   
     # Take the log of the current and counts
-    data[0] = np.log10(current)
-    data[1] = np.log10(ratio)
+    x_data = np.log10(current)
+    y_data = np.log10(ratio)
 
     # Plot the data with error bars in black
     plt.errorbar(
-        data[0], 
-        data[1], 
+        x_data, 
+        y_data, 
         yerr=log_ratiodev, 
         fmt='.', 
         color='black',   # Colour of the data points
@@ -108,28 +118,29 @@ def log_graph(data):
     )
 
     # Linear fit (optional, for visualization)
-    linear_fit(data)
+    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,  sigma = log_ratiodev, absolute_sigma=True)
     
     # Calculate and display R-squared value
     r_2 = r_squared(data)
-    print(f'R^2: {r_2}')
+    # Chi-squared values for linear fit
+    lin_chi_squared = calc_chi_squared(y_data, x_data, log_ratiodev, lin_fit, *popt_lin)
+    lin_red_chi_squared = calc_red_chi_squared(lin_chi_squared, x_data, len(popt_lin))
+    print(f'The chi-squared and reduced chi-squared values for the linear fit are {lin_chi_squared:.2f} and {lin_red_chi_squared:.2f}')
     
+    x_fit = np.linspace(x_data.min(), x_data.max(), 500)
+    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), label="Linear Fit")
     # Display plot details
     plt.title('Logarithmic Graph with Error Bars')
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Second')
-    plt.grid(True)
-    plt.annotate(f'R^2 = {r_2:.3f}', xy=(min(data[0]), 0.9 * max(data[1])))
+    
     plt.legend()
 
 
 
-def linear_fit(data):
-    coef = np.polyfit(data[0], data[1], 1)
-    poly1d_fn = np.poly1d(coef)
-    slope,intercept = np.poly1d(coef)
 
-    plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit, m = '+str(slope))
+
+
 
 
 def r_squared(data):
@@ -154,6 +165,17 @@ def r_squared(data):
 
     return r_squared
 
+#Defining chi-squared
+def calc_chi_squared(y_data, x_data, y_err, fit_model, *params):
+  model_values = fit_model(x_data, *params)
+  chi_squared = np.sum(((y_data - model_values) / y_err) ** 2)
+  return chi_squared
+
+#Defining reduced chi-squared
+def calc_red_chi_squared(chi_squared, x_data, N):
+  DoF = len(x_data) - N   #N is number of fitting parameters
+  red_chi_squared = (1/DoF) * chi_squared
+  return red_chi_squared
 
 def exp_decay_fit(data):
     '''
@@ -168,8 +190,6 @@ def exp_decay_fit(data):
     # Define the model
     def model(x, a, b, t):
         return a + b * np.exp(-x / t)
-
-
 
     # Normalize data
     x_data = np.array(data[0])
@@ -206,6 +226,11 @@ def exp_decay_fit(data):
         r_squared = r2_score(y_data, y_pred)
         print(f"R^2 value: {r_squared:.3f}")
 
+
+        ##requires error to calculate##
+        #exp_chi_squared = calc_chi_squared(y_data, x_data, REQUIRES ERROR TO WORK, model, *popt)
+        #exp_red_chi_squared = calc_red_chi_squared(exp_chi_squared, x_data, len(popt))
+
         # Generate fitted curve for plotting
         x_fit = np.linspace(min(x_data), max(x_data), 500)
         y_fit = model(x_fit / max(x_data), a_fit, b_fit, t_fit) * max(y_data)
@@ -219,7 +244,7 @@ def exp_decay_fit(data):
 
 # Main execution
 # All files currently in the dataset
-files = ['B6S2 smaller']
+files = ['B6S2 smaller', 'B6S2 620 small']
 
 # loop to produce log and XY graphs for all datasets at once
 for file in files:
