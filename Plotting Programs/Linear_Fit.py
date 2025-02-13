@@ -159,27 +159,6 @@ def log_graph(data,file):
     plt.ylabel('Log of Counts Per Second')
   
 
-
-def linear_fit(data,file):
-    '''
-    Calculates a first degree polynomial fit for provided data.
-    Parameters:
-    Data to be fitted
-    Name of the file
-
-    Returns:
-    A plot with a linear fit.
-    '''
-    coef = np.polyfit(data[0], data[1], 1)
-    poly1d_fn = np.poly1d(coef)
-    slope,intercept = np.poly1d(coef)
-
-
-
-    plt.plot(data[0], poly1d_fn(data[0]), label= file+' Linear Fit, m = '+str(round(slope,2)))
-
-
-
 def r_squared(data):
     '''
     Calculates the R^2 score for a linear fit to the data.
@@ -275,15 +254,10 @@ def exp_decay_fit(data):
         plt.errorbar(x_fit, y_fit,label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.5f}, R^2={r_squared}', color='green')
     except RuntimeError as e:
         print(f"Curve fitting failed: {e}")
-       
-
-
 # Main execution
 # All files currently in the dataset
 
 files = ['B6S2 smaller', 'B6S2 620 small']
-
-
 
 # loop to produce log and XY graphs for all datasets at once and save them into an images folder
 for file in files:
