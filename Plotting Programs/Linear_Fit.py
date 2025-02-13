@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
+from matplotlib.lines import Line2D
 
 
 def read_data(fileName):
@@ -118,7 +119,7 @@ def log_graph(data,file):
     )
 
     # Linear fit function call
-    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,file,  sigma = log_ratiodev, absolute_sigma=True)
+    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,  sigma = log_ratiodev, absolute_sigma=True)
     
     # Calculate and display R-squared value
     r_2 = r_squared(data)
@@ -130,23 +131,33 @@ def log_graph(data,file):
 
     
     x_fit = np.linspace(x_data.min(), x_data.max(), 500)
+
+
+
+# Define the gradient and error
     gradient = popt_lin[0]
-    gradient_err = np.sqrt(popc_lin[0, 0])  # Standard deviation of the gradient
+    gradient_err = np.sqrt(popc_lin[0, 0])  # Uncertainty in gradient
 
-    plt.plot(
-        x_fit, 
-        lin_fit(x_fit, *popt_lin), 
-        label=rf'Gradient = {gradient:.3f} ± {gradient_err:.3f}, $\bar\chi^2$ = {lin_red_chi_squared:.3f}'
-    )
+# Define the gradient and error
+    gradient = popt_lin[0]
+    gradient_err = np.sqrt(popc_lin[0, 0])  # Uncertainty in gradient
 
-    # Display plot details
+# Create custom legend handles
+    line_handle = Line2D([0], [0], color='blue', linestyle='-', label=rf"Linear fit: $y = {gradient:.3f} \pm {gradient_err:.3f}$")
+    line_handleblank = Line2D([0], [0], color='white', linestyle='-', label = r"$\bar{\chi}^2$ = %.3f" % lin_red_chi_squared)
+
+
+# Plot the fit line
+    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), color="blue", label="_nolegend_")  # Hide duplicate legend entry
+
+# Manually create a two-line legend
+    plt.legend(handles=[line_handle, line_handleblank], loc="best", fontsize=10, frameon=True)
+
+# Display plot details
     plt.title('Logarithmic Graph with Error Bars')
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Second')
-
-
-
-    plt.legend()
+  
 
 
 def linear_fit(data,file):
