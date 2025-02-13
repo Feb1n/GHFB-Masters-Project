@@ -118,7 +118,7 @@ def log_graph(data,file):
     )
 
     # Linear fit function call
-    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,file,  sigma = log_ratiodev, absolute_sigma=True)
+    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,  sigma = log_ratiodev, absolute_sigma=True)
     
     # Calculate and display R-squared value
     r_2 = r_squared(data)
@@ -129,6 +129,7 @@ def log_graph(data,file):
     
     x_fit = np.linspace(x_data.min(), x_data.max(), 500)
     plt.plot(x_fit, lin_fit(x_fit, *popt_lin), label="Linear Fit")
+
     # Display plot details
     plt.title('Logarithmic Graph with Error Bars')
     plt.xlabel('Log of Current (mA)')
@@ -137,27 +138,6 @@ def log_graph(data,file):
 
     plt.grid(True)
     plt.legend()
-
-
-def linear_fit(data,file):
-    '''
-    Calculates a first degree polynomial fit for provided data.
-    Parameters:
-    Data to be fitted
-    Name of the file
-
-    Returns:
-    A plot with a linear fit.
-    '''
-    coef = np.polyfit(data[0], data[1], 1)
-    poly1d_fn = np.poly1d(coef)
-    slope,intercept = np.poly1d(coef)
-
-
-
-    plt.plot(data[0], poly1d_fn(data[0]), label= file+' Linear Fit, m = '+str(round(slope,2)))
-
-
 
 def r_squared(data):
     '''
@@ -254,15 +234,10 @@ def exp_decay_fit(data):
         plt.errorbar(x_fit, y_fit,label=f'Fit: a={a_fit_rescaled:.2f}, b={b_fit_rescaled:.2f}, t={t_fit_rescaled:.5f}, R^2={r_squared}', color='green')
     except RuntimeError as e:
         print(f"Curve fitting failed: {e}")
-       
-
-
 # Main execution
 # All files currently in the dataset
 
 files = ['B6S2 smaller', 'B6S2 620 small']
-
-
 
 # loop to produce log and XY graphs for all datasets at once and save them into an images folder
 for file in files:
