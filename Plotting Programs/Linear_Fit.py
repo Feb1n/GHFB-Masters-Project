@@ -133,23 +133,15 @@ def log_graph(data,file):
     plt.title('Logarithmic Graph with Error Bars')
     plt.xlabel('Log of Current (mA)')
     plt.ylabel('Log of Counts Per Second')
-<<<<<<< HEAD
-    
-=======
+
+
     plt.grid(True)
->>>>>>> aa73456907da4f9d77d15072efecbbf35b9ce657
     plt.legend()
 
 
 def linear_fit(data,file):
     '''
     Calculates a first degree polynomial fit for provided data.
-
-<<<<<<< HEAD
-
-
-
-=======
     Parameters:
     Data to be fitted
     Name of the file
@@ -164,7 +156,7 @@ def linear_fit(data,file):
 
 
     plt.plot(data[0], poly1d_fn(data[0]), label= file+' Linear Fit, m = '+str(round(slope,2)))
->>>>>>> aa73456907da4f9d77d15072efecbbf35b9ce657
+
 
 
 def r_squared(data):
