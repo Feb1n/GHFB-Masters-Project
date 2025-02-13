@@ -125,10 +125,19 @@ def log_graph(data,file):
     # Chi-squared values for linear fit
     lin_chi_squared = calc_chi_squared(y_data, x_data, log_ratiodev, lin_fit, *popt_lin)
     lin_red_chi_squared = calc_red_chi_squared(lin_chi_squared, x_data, len(popt_lin))
-    print(f'The chi-squared and reduced chi-squared values for the linear fit are {lin_chi_squared:.2f} and {lin_red_chi_squared:.2f}')
+    
+
+
     
     x_fit = np.linspace(x_data.min(), x_data.max(), 500)
-    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), label="Linear Fit")
+    gradient = popt_lin[0]
+    gradient_err = np.sqrt(popc_lin[0, 0])  # Standard deviation of the gradient
+
+    plt.plot(
+        x_fit, 
+        lin_fit(x_fit, *popt_lin), 
+        label=rf'Gradient = {gradient:.3f} ± {gradient_err:.3f}, $\bar\chi^2$ = {lin_red_chi_squared:.3f}'
+    )
 
     # Display plot details
     plt.title('Logarithmic Graph with Error Bars')
@@ -136,7 +145,7 @@ def log_graph(data,file):
     plt.ylabel('Log of Counts Per Second')
 
 
-    plt.grid(True)
+
     plt.legend()
 
 def r_squared(data):
