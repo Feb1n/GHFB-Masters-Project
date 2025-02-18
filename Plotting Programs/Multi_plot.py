@@ -4,9 +4,9 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 # Specify csv filenames to be plotted on one graph in the list below:
-files = ['B4S4 620BP','B4S5']
+files = ['B5S1 620 650 3', 'B5S1 620 650 2']
 
-def log_graph(data,file):
+def log_graph(data, file, index):
     '''
     Plots given data as a basic xy graph, while taking the log of the axes.
     Includes error bars based on standard deviation of both regions across repeat measurement.
@@ -20,17 +20,21 @@ def log_graph(data,file):
     Logarithmic plot with error bars and a linear fit.
     '''
 
-    # Extract parameters from the data
-    current = np.array(data[0]) # current values
-    ratio = np.array(data[1])   #ratio of signal/reference intensity
-    inttime = np.array(data[2]) #variable integration time
-    signal = np.array(data[3]) #signal intensity raw data
-    ref = np.array(data[4])    #reference intensity raw data
-    signaldev = np.array(data[5]) #std dev of repeat measurements for signal raw data
-    refdev = np.array(data[6]) #std dev of repeat measurements for reference raw data
+    # Define marker and color lists
+    markers = ['o', 's', '^', 'd', 'x', 'v', '*', 'p', 'h']
+    colours = plt.cm.Spectral(np.linspace(0, 1, len(files)))  # Generate distinct colors
 
-   # Propagate errors in regions to ratio
-    ratiodev = ratio * inttime*1e-3* np.sqrt((signaldev / signal)**2 + (refdev / ref)**2)
+    # Extract parameters from the data
+    current = np.array(data[0])  # Current values
+    ratio = np.array(data[1])  # Ratio of signal/reference intensity
+    inttime = np.array(data[2])  # Variable integration time
+    signal = np.array(data[3])  # Signal intensity raw data
+    ref = np.array(data[4])  # Reference intensity raw data
+    signaldev = np.array(data[5])  # Standard deviation of repeat measurements for signal raw data
+    refdev = np.array(data[6])  # Standard deviation of repeat measurements for reference raw data
+
+    # Propagate errors in regions to ratio
+    ratiodev = ratio * inttime * 1e-3 * np.sqrt((signaldev / signal) ** 2 + (refdev / ref) ** 2)
 
     # Propagate error
     log_ratiodev = ratiodev / (ratio * np.log(10))
@@ -38,33 +42,28 @@ def log_graph(data,file):
     # Take the log of the current and counts
     x_data = np.log10(current)
     y_data = np.log10(ratio)
-
-    # Plot the data with error bars in black
-    plt.errorbar(
-        x_data, 
-        y_data, 
-        yerr=log_ratiodev, 
-        fmt='.', 
-        color='black',   # Colour of the data points
-        ecolor='black',  # Colour of the error bars
-        elinewidth=1,    # Width of the error bar lines
-        capsize=3        # Size of the error bar caps
-    )
-
-    # Linear fit (optional, for visualization)
-    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data,  sigma = log_ratiodev, absolute_sigma=True)
+        # Linear fit (optional, for visualization)
+    popt_lin, popc_lin = curve_fit(lin_fit, x_data, y_data, sigma=log_ratiodev, absolute_sigma=True)
     lin_chi_squared = calc_chi_squared(y_data, x_data, log_ratiodev, lin_fit, *popt_lin)
     lin_red_chi_squared = calc_red_chi_squared(lin_chi_squared, x_data, len(popt_lin))
     x_fit = np.linspace(x_data.min(), x_data.max(), 500)
-    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), label=file +"  m = "+str(round(popt_lin[0],2))+' ±' +str(round(np.sqrt(popc_lin[0,0]),2))+'  '+r"$\bar{\chi}^2$ = %.3f" % lin_red_chi_squared)  # Hide duplicate legend entry
+    
+    # Assign unique marker and color
+    marker = markers[index % len(markers)]
+    colour = colours[index % len(colours)]
+    label_text = (f"{file}: m = {popt_lin[0]:.2f} ± {np.sqrt(popc_lin[0,0]):.2f}, " +
+                  r"$\bar{\chi}^2$" + f" = {lin_red_chi_squared:.2f}")
 
+    # Plot the data with error bars
+    plt.errorbar(
+        x_data, y_data, yerr=log_ratiodev, 
+        fmt=marker, color=colour, ecolor='black', 
+        elinewidth=1, capsize=3, label=label_text
+    )
 
-    # Display plot details
-    plt.title('Logarithmic Graph with Error Bars')
-    plt.xlabel('Log of Current (mA)')
-    plt.ylabel('Log of Counts Per Second')
-    plt.grid(True)
-    plt.legend()
+    # Plot linear fit with same color as datapoint
+    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), color=colour, alpha = 0.75, label='_nolegend_')
+  
 
 def lin_fit(x, m, c):
   return m*x + c
@@ -85,15 +84,16 @@ def calc_red_chi_squared(chi_squared, x_data, N):
 plt.figure(figsize=(10, 6))
 
 figure_name = 'Multi_plot'
-for file in files:
+for index, file in enumerate(files):  # Use enumerate to get both index and filename
     data = read_data(file+'.csv')
-    log_graph(data,file)
-    figure_name = figure_name+'_'+file
+    log_graph(data, file, index)  # Pass index to the function
+    figure_name = figure_name + '_' + file
 
 # Adjust Titles and labels on figure
 plt.title('Log graph of the ratio of counts per second')
 plt.ylabel('Log(Ratio/Second)')
 plt.xlabel('Log(Current)')
 plt.savefig('images/'+figure_name+'.png')
+plt.legend()
 plt.show()
 
