@@ -63,12 +63,6 @@ def xy_graph(data,file):
     plt.grid(True)
     plt.legend()
 
-def linear_fit(data):
-    coef = np.polyfit(data[0], data[1], 1)
-    poly1d_fn = np.poly1d(coef)
-    slope,intercept = np.poly1d(coef)
-
-    plt.plot(data[0], poly1d_fn(data[0]), label='Linear Fit, m = '+str(slope))
 
 #Defining linear fit
 def lin_fit(x, m, c):
@@ -111,8 +105,7 @@ def log_graph(data,file):
         x_data, 
         y_data, 
         yerr=log_ratiodev, 
-        fmt='.', 
-        color='black',   # Colour of the data points
+        fmt='.',    # Colour of the data points
         ecolor='black',  # Colour of the error bars
         elinewidth=1,    # Width of the error bar lines
         capsize=3        # Size of the error bar caps
@@ -126,13 +119,8 @@ def log_graph(data,file):
     # Chi-squared values for linear fit
     lin_chi_squared = calc_chi_squared(y_data, x_data, log_ratiodev, lin_fit, *popt_lin)
     lin_red_chi_squared = calc_red_chi_squared(lin_chi_squared, x_data, len(popt_lin))
-    
 
-
-    
     x_fit = np.linspace(x_data.min(), x_data.max(), 500)
-
-
 
 # Define the gradient and error
     gradient = popt_lin[0]
@@ -143,12 +131,12 @@ def log_graph(data,file):
     gradient_err = np.sqrt(popc_lin[0, 0])  # Uncertainty in gradient
 
 # Create custom legend handles
-    line_handle = Line2D([0], [0], color='blue', linestyle='-', label=rf"Linear fit: $y = {gradient:.3f} \pm {gradient_err:.3f}$")
+    line_handle = Line2D([0], [0], linestyle='-', label=rf"Linear fit: $y = {gradient:.3f} \pm {gradient_err:.3f}$")
     line_handleblank = Line2D([0], [0], color='white', linestyle='-', label = r"$\bar{\chi}^2$ = %.3f" % lin_red_chi_squared)
 
 
 # Plot the fit line
-    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), color="blue", label="_nolegend_")  # Hide duplicate legend entry
+    plt.plot(x_fit, lin_fit(x_fit, *popt_lin), label="_nolegend_")  # Hide duplicate legend entry
 
 # Manually create a two-line legend
     plt.legend(handles=[line_handle, line_handleblank], loc="best", fontsize=10, frameon=True)
