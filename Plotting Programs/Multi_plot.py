@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 # Specify csv filenames to be plotted on one graph in the list below:
-files = ['B5S1 620 650 3', 'B5S1 620 650 2']
+files = ['B2S1', 'B2S3', 'B2S5']
 
 def log_graph(data, file, index):
     '''
@@ -22,7 +22,7 @@ def log_graph(data, file, index):
 
     # Define marker and color lists
     markers = ['o', 's', '^', 'd', 'x', 'v', '*', 'p', 'h']
-    colours = plt.cm.Spectral(np.linspace(0, 1, len(files)))  # Generate distinct colors
+    colours = plt.cm.viridis(np.linspace(0, 1, len(files)))  # Generate distinct colors
 
     # Extract parameters from the data
     current = np.array(data[0])  # Current values
@@ -51,8 +51,8 @@ def log_graph(data, file, index):
     # Assign unique marker and color
     marker = markers[index % len(markers)]
     colour = colours[index % len(colours)]
-    label_text = (f"{file}: m = {popt_lin[0]:.2f} ± {np.sqrt(popc_lin[0,0]):.2f}, " +
-                  r"$\bar{\chi}^2$" + f" = {lin_red_chi_squared:.2f}")
+    label_text = (f"{file}: m = {popt_lin[0]:.3f} ± {np.sqrt(popc_lin[0,0]):.3f}, " +
+                  r"$\bar{\chi}^2$" + f" = {lin_red_chi_squared:.3f}")
 
     # Plot the data with error bars
     plt.errorbar(
