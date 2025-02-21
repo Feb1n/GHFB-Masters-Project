@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 # Specify csv filenames to be plotted on one graph in the list below:
-files = ['B2S1', 'B2S3', 'B2S5']
+files = ['B5S1 620BP 650SP', 'B5S2 620BP 650SP', 'B6S1 620BP 650SP','B6S2 620BP 650SP']
 
 def log_graph(data, file, index):
     '''
@@ -93,7 +93,6 @@ for index, file in enumerate(files):  # Use enumerate to get both index and file
 plt.title('Log graph of the ratio of counts per second')
 plt.ylabel('Log(Ratio/Second)')
 plt.xlabel('Log(Current)')
-plt.savefig('images/'+figure_name+'.png')
 plt.legend()
+plt.savefig('images/'+figure_name+'.png')
 plt.show()
-
